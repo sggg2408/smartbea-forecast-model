@@ -5,8 +5,6 @@ provider:
   runtime: python3.9
   stage: ${opt:stage, 'dev'}
   region: ap-southeast-1
-  #iam:
-    #role: arn:aws:iam::405125190450:role/LookerActionExecutionRole
   logs:
     restApi: true
   lambdaHashingVersion: 20201221
@@ -18,7 +16,7 @@ provider:
 
 functions:
   app:
-    handler: wsgi.handler
+    handler: wsgi_handler.handler
     events:
       - http: ANY /
       - http: 'ANY /{proxy+}'
@@ -33,3 +31,4 @@ custom:
     packRequirements: false
   pythonRequirements:
     dockerizePip: non-linux
+
