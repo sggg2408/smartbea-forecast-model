@@ -10,7 +10,7 @@ on:
 
 jobs:
   deploy:
-    name: Deploy to ${{ github.event.inputs.environment | default('dev') }}
+    name: Deploy to ${{ github.event.inputs.environment }}
     runs-on: ubuntu-latest
 
     env:
