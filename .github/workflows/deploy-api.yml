@@ -1,17 +1,20 @@
 name: Deploy Dummy API
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
-    # Optional: allow manual trigger for any branch
-    inputs: {}
+    inputs:
+      environment:
+        description: "Environment to deploy (dev, stg, production)"
+        required: true
+        default: "dev"
 
 jobs:
   deploy:
-    name: Deployment
+    name: Deploy to ${{ github.event.inputs.environment | default('dev') }}
     runs-on: ubuntu-latest
+
+    env:
+      STAGE: ${{ github.event.inputs.environment }}
 
     steps:
       - name: Checkout
@@ -30,22 +33,15 @@ jobs:
       - name: Install Serverless Framework and Plugins
         run: npm install -g serverless@3 serverless-wsgi serverless-python-requirements
 
-      - name: Install NPM dependencies (if package.json exists)
-        run: |
-          if [ -f package.json ]; then
-            npm install
-          else
-            echo "No package.json found. Skipping npm install."
-          fi
-
-      - name: Serverless AWS authentication
-        run: sls config credentials --provider aws --key ${{ secrets.PROD_AWS_ACCESS_KEY_ID }} --secret ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Deploy Lambda functions
-        run: sls deploy -s production
+        run: sls deploy -s $STAGE
 
       - name: Show Deployed API Endpoint
-        run: |
-            echo "Retrieving deployed API endpoint..."
-            sls info --stage production --verbose
-
+        run: sls info --stage $STAGE --verbose
