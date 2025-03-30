@@ -19,7 +19,7 @@ functions:
     handler: wsgi_handler.handler
     events:
       - http: ANY /
-      - http: 'ANY /{proxy+}'
+      
 
 plugins:
   - serverless-python-requirements
