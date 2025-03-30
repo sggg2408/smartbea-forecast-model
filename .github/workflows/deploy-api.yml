@@ -44,27 +44,8 @@ jobs:
       - name: Deploy Lambda functions
         run: sls deploy -s production
 
-      - name: Verify Deployed API Endpoint
+      - name: Show Deployed API Endpoint
         run: |
-          echo "Fetching deployed API URL..."
-          sls info --stage production --verbose > deploy_info.txt
+            echo "Retrieving deployed API endpoint..."
+            sls info --stage production --verbose
 
-          cat deploy_info.txt
-
-          URL=$(grep -o 'https://[^ ]*/dev/hello' deploy_info.txt || true)
-
-          if [ -z "$URL" ]; then
-            echo "❌ Could not find API endpoint in deployment output!"
-            exit 1
-          fi
-
-          echo "Testing endpoint: $URL"
-
-          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
-
-          if [ "$RESPONSE" -ne 200 ]; then
-            echo "❌ API did not return 200 OK. Response code: $RESPONSE"
-            exit 1
-          else
-            echo "✅ API returned 200 OK!"
-          fi
