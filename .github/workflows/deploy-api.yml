@@ -1,4 +1,4 @@
-name: Deploy Python WSGI API
+name: smartbea-forecast-model-deploy
 
 on:
   push:
