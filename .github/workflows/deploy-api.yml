@@ -1,6 +1,10 @@
 name: Deploy Python WSGI API
 
 on:
+  push:
+    branches:
+      - main
+
   workflow_dispatch:
     inputs:
       environment:
@@ -10,11 +14,11 @@ on:
 
 jobs:
   deploy:
-    name: Deploy to ${{ github.event.inputs.environment }}
+    name: Deploy to ${{ github.event.inputs.environment || 'dev' }}
     runs-on: ubuntu-latest
 
     env:
-      STAGE: ${{ github.event.inputs.environment }}
+      STAGE: ${{ github.event.inputs.environment || 'dev' }}
 
     steps:
       - name: Checkout code
@@ -25,7 +29,7 @@ jobs:
         with:
           python-version: 3.9
 
-      - name: Set up Node.js (for Serverless Framework)
+      - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
           node-version: '18'
@@ -36,8 +40,8 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Install Python dependencies
